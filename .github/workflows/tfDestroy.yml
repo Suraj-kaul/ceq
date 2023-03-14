@@ -5,9 +5,9 @@ on:
 
 env:
   aws-region: us-east-1
-  aws_s3_bucket: priyanka-backend-bucket
+  aws_s3_bucket: demo-bucket-auto-tagging-new
   tfstate_file: terraState.tfstate
-  db_table: priyanka-dynamo-table
+  # db_table: priyanka-dynamo-table
 
 jobs:
   terraformInit:
@@ -37,7 +37,7 @@ jobs:
 
       - name: terraform init
         run: 
-          terraform init -reconfigure -backend-config="bucket=$aws_s3_bucket" -backend-config="key=$tfstate_file" -backend-config="dynamodb_table=$db_table"
+          terraform init -reconfigure -backend-config="bucket=$aws_s3_bucket" -backend-config="key=$tfstate_file" 
 
       - name: terraform destroy
         run: 
