@@ -1,0 +1,44 @@
+name: GitHub Actions--Terraform-Destroy
+
+on:
+  workflow_dispatch:
+
+env:
+  aws-region: us-east-1
+  aws_s3_bucket: priyanka-backend-bucket
+  tfstate_file: terraState.tfstate
+  db_table: priyanka-dynamo-table
+
+jobs:
+  terraformInit:
+    name: terraInit
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./module_block
+
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+
+      - name: Terraform HasiCorp SetUp
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.2.6
+
+      - name: AWS Credentials Configuration
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-region: ${{ env.aws-region }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+
+      - name: terraform init
+        run: 
+          terraform init -reconfigure -backend-config="bucket=$aws_s3_bucket" -backend-config="key=$tfstate_file" -backend-config="dynamodb_table=$db_table"
+
+      - name: terraform destroy
+        run: 
+          terraform destroy -auto-approve
